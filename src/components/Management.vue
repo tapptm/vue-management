@@ -1,8 +1,11 @@
 <template>
   <div class="manager">
     <h1>{{ msg }}</h1>
-    <form name="todo-form" method="post" action="" v-on:submit.prevent= "addTask">
-    <input type="text" v-model= "addFirstName" placeholder="ชื่อ" />
+
+    <lists/>
+
+    <form id="form" name="todo-form" method="post" action="" v-on:submit.prevent= "addTask">
+    <input type="text" v-model= "addFirstName " placeholder="ชื่อ" />
     <input type="text" v-model= "addLastName" placeholder="นามสกุล" />
     <input type="number" v-model= "addAge" placeholder="อายุ" />
     <select v-model="selectGender">
@@ -16,66 +19,92 @@
         <option>ขายหมู</option>
     </select>
     <button type="submit">Add</button>
-
+    </form>
 
    <h3>List Employee</h3>
-     <div class="todo-lists" v-if="lists.length">
-          <ul>
-            <li v-for="list in filterLists" :key="list.id">
-                <input type="checkbox" v-on:change="completeTask(list)" v-bind:checked="list.isComplete"/>
-                  <span class="fname"
-                        contenteditable="true"
-                        v-on:keydown.enter="updateTask($event, list)"
+   <center>
+     <table >
+         <thead>
+             <tr>
+                 <th v-bind:key="column" v-for="column in columns">
+                     {{column}}
+                 </th>
+             </tr>
+         </thead>
+          <tbody>
+            <tr v-for="list in filterLists" :key="list.id">
+                <td>
+                    <input type="checkbox" v-on:change="completeTask(list)" v-bind:checked="list.isComplete"/>
+                </td>
+                  <td class="fname"
+                        contenteditable="true" 
+                        v-on:keydown.enter="updateTask($event, list)" 
                         v-on:blur="updateTask($event, list)"
                         v-bind:class="{completed: list.isComplete}">
-                        ชื่อ : {{list.fname}}</span>
+                        {{list.fname}}</td>
 
-                  <span class="lname"
-                        contenteditable="true"
-                        v-on:keydown.enter="updateTask($event, list)"
-                        v-on:blur="updateTask($event, list)"
+                  <td class="lname"
+                        contenteditable="true" 
+                        v-on:keydown.enter="updateTask($event, list)" 
+                        v-on:blur="updateTask($event, list)" 
                         v-bind:class="{completed: list.isComplete}">
-                        สกุล : {{list.lname}}
-                  </span> 
+                        {{list.lname}}
+                  </td> 
 
-                  <span class="age"
-                        contenteditable="true"
-                        v-on:keydown.enter="updateTask($event, list)"
-                        v-on:blur="updateTask($event, list)"
+                  <td class="age"
+                        contenteditable="true" 
+                        v-on:keydown.enter="updateTask($event, list)" 
+                        v-on:blur="updateTask($event, list)" 
                         v-bind:class="{completed: list.isComplete}">
-                        อายุ : {{list.age}}
-                  </span> 
+                        {{list.age}} 
+                  </td> 
 
-                  <span class="selectGender" 
-                         v-bind:class="{completed: list.isComplete}">
-                         เพศ : {{list.gender}}
-                  </span> 
-
-                  <span class="selectPosition" 
+                  <td class="selectGender" 
+                        contenteditable="true" 
+                        v-on:keydown.enter="updateTask($event, list)" 
+                        v-on:blur="updateTask($event, list)" 
                         v-bind:class="{completed: list.isComplete}">
-                        ตำแหน่ง : {{list.position}}
-                   </span> 
-                   <span class="remove" v-on:click="removeTask(list)">x</span>
-            </li>
-          </ul>
-        </div>
-    
-  </form>
+                        {{list.gender}}
+                  </td> 
+
+                  <td class="selectPosition" 
+                        contenteditable="true" 
+                        v-on:keydown.enter="updateTask($event, list)" 
+                        v-on:blur="updateTask($event, list)" 
+                        v-bind:class="{completed: list.isComplete}">
+                        {{list.position}}
+                  </td> 
+                  <td>
+                        <a href="#editform" class="remove" v-on:click="removeTask(list)">edit</a>
+                  </td>
+                  <td >  
+                        <a href="#!" class="remove" v-on:click="removeTask(list)">x</a>
+                  </td>
+            </tr>
+          </tbody>
+        </table>
+    </center>
+  
   </div>
 </template>
 
 <script>
 
 import _ from 'lodash'
+import lists from '../components/ListEmployee.vue'
 
 export default {
   name: 'manage',
   props: {
     msg: String
   },
+  component:{
+      lists
+  },
+
   data : function () {
    return {
-     message: 'New Task',
+     columns: ['สถานะ', 'ชื่อ', 'นามสกุล', 'อายุ', 'เพศ', 'ตำแหน่ง','แก้ไข','ลบ'],
      selected : '',
      addFirstName : ''  , 
      addLastName : '',
@@ -83,7 +112,15 @@ export default {
      selectGender : '',
      selectPosition : '',
      lists: [], // this will hold all the created todo task items
-     hasError: false  // <-- to handle errors
+     editInput: {
+                fname: "",
+                lname: "",
+                age: "",
+                gender: "",
+                position: ""
+                }
+                 
+
    }
     
   },
@@ -111,36 +148,23 @@ export default {
       this.selectPosition = '';
       
     },
-    
-     completeTask: function(list){
+    editTask: function(index) {
+      this.editInput = this.list[index];
+      this.list.splice(index, 1);
+    },
+    completeTask: function(list){
             list.isComplete = !list.isComplete;
     },
-     removeTask: function(list){
+    removeTask: function(list){
       var index = _.findIndex(this.lists, list);
       this.lists.splice(index, 1);
     }
-          
-
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-
-a {
-  color: #42b983;
-}
-
-input[type=text].error{border: 1px solid red;}
-
 
 .completed{
   text-decoration: line-through;
@@ -154,5 +178,15 @@ input[type=text].error{border: 1px solid red;}
 }
 .remove:hover{
   background: #3cb0fd;
+}
+
+table {
+  border-collapse: collapse;
+  width: 50%;
+}
+
+table, th, td {
+  border: 1px solid black;
+  height: 20px;
 }
 </style>

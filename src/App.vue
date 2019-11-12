@@ -1,28 +1,22 @@
 <template>
   <div id="app">
     <manage msg="Account Management"/>
-
-  </div>
+   
+    </div>
 </template>
 
 <script>
 
 import manage from './components/Management.vue'
 
+
 export default {
   name: 'app',
   
   components: {
     manage,
-  },
-  data : function() {
-    
     
   },
-  methods : {
-  
-  }
-  
 }
 </script>
 
